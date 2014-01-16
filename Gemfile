@@ -6,12 +6,6 @@ gem "puma"
 
 gem "sinatra-asset-pipeline", require: 'sinatra/asset_pipeline'
 
-if RUBY_PLATFORM == "java"
-  gem "therubyrhino"
-else
-  gem "therubyracer"
-end
-
 gem "haml"
 
 group :development, :text do
@@ -21,4 +15,21 @@ end
 group :test do
   gem "rspec"
   gem "rack-test"
+end
+
+platform :rbx do
+  gem "json"
+  gem "rb-readline"
+  gem "rubysl-base64"
+  gem "rubysl-enumerator"
+  gem "rubysl-securerandom"
+  gem "rubysl-singleton"
+end
+
+platform :jruby do
+  gem "therubyrhino"
+end
+
+platform :rbx, :ruby do
+  gem "therubyracer"
 end
