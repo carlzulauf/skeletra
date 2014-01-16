@@ -1,7 +1,7 @@
 # Skeletra [![Build Status][travis-image]][travis-link]
 
-[travis-image]: https://secure.travis-ci.org/carlzulauf/redis-types.png?branch=master
-[travis-link]: http://travis-ci.org/carlzulauf/redis-types
+[travis-image]: https://secure.travis-ci.org/carlzulauf/skeletra.png?branch=master
+[travis-link]: http://travis-ci.org/carlzulauf/skeletra
 
 Skeleton single-process sinatra app.
 
