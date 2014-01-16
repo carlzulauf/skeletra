@@ -94,6 +94,7 @@ class Skeletra
 
     def push(item)
       @queue << item
+      true
     end
 
     def size
