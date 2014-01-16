@@ -5,6 +5,8 @@ class Skeletra
     helpers Sinatra::Jsonp, Skeletra::WorkHelpers
 
     get '/' do
+      @queued = Skeletra.work.queue.size
+      @pooled = Skeletra.work.pool.size
       haml :index
     end
 
@@ -16,7 +18,7 @@ class Skeletra
           sleep 1
         end
       end
-      haml :index
+      redirect back
     end
   end
 end

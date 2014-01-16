@@ -1,5 +1,13 @@
 %h1 Welcome
 
+%h2
+  Queue size:
+  = @queued
+
+%h2
+  Pool size:
+  = @pooled
+
 %p
   You have reached the default welcome page for skeletra, a sinatra skeleton
   app. You can find this page in views/index.haml.
@@ -11,3 +19,6 @@
   If javascript is working properly, you should see a message here:
 
 #js-test-output
+
+%p
+  %a{href: '/tick'} tick
