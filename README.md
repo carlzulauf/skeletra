@@ -9,6 +9,6 @@ Goals/features:
   * Web requests and background work run together in same process
   * Slow or persistent background jobs don't block web requests
 * Functional asset pipeline with coffeescript support
-* Haml, by default
+* Haml and SCSS, by default
 * Test coverage
 * Portable, but JRuby first. MRI and Rubinius second.
