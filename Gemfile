@@ -8,11 +8,12 @@ gem "sinatra-asset-pipeline", require: 'sinatra/asset_pipeline'
 
 gem "haml"
 
-group :development, :text do
+group :development, :test do
   gem "pry"
 end
 
 group :test do
+  gem "rake"
   gem "rspec"
   gem "rack-test"
 end

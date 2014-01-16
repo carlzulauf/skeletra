@@ -96,6 +96,7 @@ DEPENDENCIES
   pry
   puma
   rack-test
+  rake
   rb-readline
   rspec
   rubysl-base64
