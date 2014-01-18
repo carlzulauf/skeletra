@@ -5,7 +5,7 @@ class Skeletra
     attr_reader :queue, :pool
 
     def initialize
-      @queue = Skeletra.java? ? Jlbq.new : SyncQueue.new
+      @queue = TimeoutQueue.new
       @pool = Set.new
     end
 
@@ -66,45 +66,27 @@ class Skeletra
       end
     end
 
-    class Jlbq
+    class TimeoutQueue
+      include Timeout
+
       def initialize
-        @queue = java.util.concurrent.LinkedBlockingQueue.new
+        @queue = Queue.new
       end
 
       def push(item)
-        @queue.add item
+        @queue << item
+        true
       end
 
-      def pop(timeout_seconds = 5)
-        @queue.poll(timeout_seconds, java.util.concurrent.TimeUnit::SECONDS)
+      def pop(seconds = 5)
+        timeout(seconds) { @queue.pop }
+      rescue Timeout::Error
+        nil
       end
 
       def size
         @queue.size
       end
-    end
-  end
-
-  class SyncQueue
-    include Timeout
-
-    def initialize
-      @queue = Queue.new
-    end
-
-    def push(item)
-      @queue << item
-      true
-    end
-
-    def size
-      @queue.size
-    end
-
-    def pop(seconds = 5)
-      timeout(seconds) { @queue.pop }
-    rescue Timeout::Error
-      nil
     end
   end
 end
