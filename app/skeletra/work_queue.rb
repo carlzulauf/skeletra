@@ -9,17 +9,17 @@ class Skeletra
       @pool = Set.new
     end
 
-    def enqueue(job)
-      log "WorkQueue#enqueue called: #{job.inspect}"
-      @queue.push(job).tap{ check_workers }
+    def enqueue(job = nil, &block)
+      if block_given?
+        enqueue BlockJob.new(block)
+      else
+        @queue.push(job).tap{ check_workers }
+      end
     end
 
-    def enqueue_block(&block)
-      enqueue BlockJob.new(block)
-    end
+    alias_method :enqueue_block, :enqueue
 
     def grab
-      log "WorkQueue#grab called"
       @queue.pop
     end
 
@@ -28,7 +28,6 @@ class Skeletra
     end
 
     def check_workers
-      log "WorkQueue#check_workers called"
       pool_size = @pool.size
       if pool_size < max_workers
         add_worker if pool_size == 0 || @queue.size > max_workers
@@ -36,12 +35,7 @@ class Skeletra
     end
 
     def add_worker
-      log "WorkQueue#add_worker called"
       Worker.new.work(self)
-    end
-
-    def log(msg)
-      # Skeletra.logger.info msg
     end
 
     class Worker

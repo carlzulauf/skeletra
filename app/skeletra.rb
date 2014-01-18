@@ -16,6 +16,10 @@ class Skeletra
     WorkQueue.instance
   end
 
+  def self.schedule
+    Schedule.instance
+  end
+
   def self.java?
     RUBY_PLATFORM == "java"
   end
@@ -24,4 +28,5 @@ end
 require 'skeletra/config'
 require 'skeletra/work_queue'
 require 'skeletra/work_helpers'
+require 'skeletra/schedule'
 require 'skeletra/server'
