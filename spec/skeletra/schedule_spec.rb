@@ -29,8 +29,8 @@ describe Skeletra::Schedule do
     end
   end
 
-  # after :each do
-  #   @schedule.clear
-  # end
+  after :each do
+    @schedule.clear
+  end
 
 end
