@@ -7,26 +7,39 @@ class Skeletra::Schedule
     @watcher = Thread.new{ watch }
   end
 
-  def add(*args)
-    options = args.last.kind_of?(Hash) ? args.pop : {}
+  def add(*args, &block)
+    options = args.extract_options!
+    at = parse_time(options)
+    add_entry Entry.new(at, args.first, options[:every])
+  end
+
+  def parse_time(options)
     seconds = (options[:in] || options[:every])
-    at = if seconds
+    if seconds
       Time.now + seconds
     elsif options[:at]
       options[:at]
     end
-    entry = Entry.new(at, args.first, options[:every])
-    @semaphore.synchronize do
+  end
+
+  def add_entry(entry)
+    sync do
       @schedules << entry
       @schedules.sort_by!(&:at)
     end
-    if @watcher.stop?
-      @watcher.wakeup
-    end
+    tickle_watcher
+  end
+
+  def tickle_watcher
+    @watcher.wakeup if @watcher.stop?
+  end
+
+  def sync
+    @semaphore.synchronize{ yield }
   end
 
   def clear
-    @semaphore.synchronize{ @schedules.clear }
+    sync{ @schedules.clear }
   end
 
   def watch
@@ -36,13 +49,13 @@ class Skeletra::Schedule
       end
       now = Time.now
       entries = []
-      @semaphore.synchronize do
+      sync do
         while @schedules.first && @schedules.first[:at] <= now
           entries << @schedules.shift
         end
       end
       entries.each do |entry|
-        log.info "Adding scheduled job to work queue"
+        log.debug "Adding scheduled job to work queue"
         entry.work!
         if entry.repeat
           add(entry.job, every: entry.repeat)
@@ -53,9 +66,6 @@ class Skeletra::Schedule
         sleep(next_job.at - now)
       end
     end
-  rescue Exception => e
-    log.error e.inspect
-    log.error e.backtrace
   end
 
   def count

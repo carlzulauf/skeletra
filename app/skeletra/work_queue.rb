@@ -10,11 +10,10 @@ class Skeletra
     end
 
     def enqueue(job = nil, &block)
-      # log.info "WorkQueue#enqueue(#{job.inspect}, block? #{block_given?})"
       if block_given?
         enqueue BlockJob.new(block)
       else
-        log.info "Adding job to work queue"
+        log "Adding job to work queue"
         @queue.push(job).tap{ check_workers }
       end
     end
@@ -32,20 +31,19 @@ class Skeletra
     def check_workers
       pool_size = pool.size
       queue_size = queue.size
-      log.info "Checking workers. Pool: #{pool_size}, Max: #{max_workers}, Queue: #{queue_size}"
-      # log.debug "Pool: #{pool.inspect}"
+      log "Checking workers. Pool: #{pool_size}, Max: #{max_workers}, Queue: #{queue_size}"
       if pool_size < max_workers
         add_worker if pool_size == 0 || queue_size > max_workers
       end
     end
 
     def add_worker
-      log.info "Adding new worker to pool"
+      log "Adding new worker to pool"
       Worker.new(pool.size).work(self)
     end
 
-    def log
-      Skeletra.logger
+    def log(msg)
+      Skeletra.logger.debug msg
     end
 
     class Worker
@@ -57,7 +55,7 @@ class Skeletra
         Thread.start do
           work.pool.add Thread.current
           while job = work.grab
-            log.info "Worker ##{@id} has grabbed a job"
+            log.debug "Worker ##{@id} has grabbed a job"
             begin
               job.perform
             rescue Exception => e
