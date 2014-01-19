@@ -8,19 +8,8 @@ class Skeletra::Schedule
   end
 
   def add(*args, &block)
-    options = args.extract_options!
-    at = parse_time(options)
     job = block_given? ? block : args.first
-    add_entry Entry.new(at, job, options[:every])
-  end
-
-  def parse_time(options)
-    seconds = (options[:in] || options[:every])
-    if seconds
-      Time.now + seconds
-    elsif options[:at]
-      options[:at]
-    end
+    add_entry Entry.new(job, args.extract_options!)
   end
 
   def add_entry(entry)
@@ -46,25 +35,20 @@ class Skeletra::Schedule
   def watch
     loop do
       Thread.stop if @schedules.empty?
-      now = Time.now
-      entries_due(now).each do |entry|
+      entries_due.each do |entry|
         log.debug "Adding scheduled job to work queue"
         entry.work!
-        if entry.repeat
-          add(entry.job, every: entry.repeat)
-        end
+        add_entry entry if entry.repeat?
       end
       next_job = @schedules.first
-      if next_job
-        sleep(next_job.at - now)
-      end
+      sleep(next_job.at - Time.now) if next_job && next_job.future?
     end
   end
 
-  def entries_due(time)
+  def entries_due
     [].tap do |entries|
       sync do
-        while @schedules.first && @schedules.first[:at] <= time
+        while @schedules.first && @schedules.first.due?
           entries << @schedules.shift
         end
       end
@@ -82,6 +66,34 @@ class Skeletra::Schedule
   class Entry < Struct.new(:at, :job, :repeat)
     def work!
       Skeletra.work.enqueue job
+    end
+  end
+
+  class Entry
+    attr_accessor :job, :at, :repeat
+
+    def initialize(job, options = {})
+      self.job = job
+      seconds = options[:in] || options[:every]
+      self.at = seconds ? Time.now + seconds : options[:at]
+      self.repeat = options[:every]
+    end
+
+    def repeat?
+      !! repeat
+    end
+
+    def due?
+      Time.now > at
+    end
+
+    def future?
+      ! due?
+    end
+
+    def work!
+      Skeletra.work.enqueue job
+      self.at = Time.now + repeat if repeat?
     end
   end
 end
