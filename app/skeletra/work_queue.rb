@@ -10,12 +10,7 @@ class Skeletra
     end
 
     def enqueue(job = nil, &block)
-      if block_given?
-        enqueue BlockJob.new(block)
-      else
-        log "Adding job to work queue"
-        @queue.push(job).tap{ check_workers }
-      end
+      @queue.push(block_given? ? block : job).tap{ check_workers }
     end
 
     alias_method :enqueue_block, :enqueue
@@ -57,7 +52,7 @@ class Skeletra
           while job = work.grab
             log.debug "Worker ##{@id} has grabbed a job"
             begin
-              job.perform
+              job.respond_to?(:perform) ? job.perform : job.call
             rescue Exception => e
               log.error %|Worker ##{@id} error: #{e.message}\n#{e.backtrace.join("\n")}|
             end

@@ -10,7 +10,8 @@ class Skeletra::Schedule
   def add(*args, &block)
     options = args.extract_options!
     at = parse_time(options)
-    add_entry Entry.new(at, args.first, options[:every])
+    job = block_given? ? block : args.first
+    add_entry Entry.new(at, job, options[:every])
   end
 
   def parse_time(options)
@@ -44,17 +45,9 @@ class Skeletra::Schedule
 
   def watch
     loop do
-      if @schedules.empty?
-        Thread.stop
-      end
+      Thread.stop if @schedules.empty?
       now = Time.now
-      entries = []
-      sync do
-        while @schedules.first && @schedules.first[:at] <= now
-          entries << @schedules.shift
-        end
-      end
-      entries.each do |entry|
+      entries_due(now).each do |entry|
         log.debug "Adding scheduled job to work queue"
         entry.work!
         if entry.repeat
@@ -64,6 +57,16 @@ class Skeletra::Schedule
       next_job = @schedules.first
       if next_job
         sleep(next_job.at - now)
+      end
+    end
+  end
+
+  def entries_due(time)
+    [].tap do |entries|
+      sync do
+        while @schedules.first && @schedules.first[:at] <= time
+          entries << @schedules.shift
+        end
       end
     end
   end

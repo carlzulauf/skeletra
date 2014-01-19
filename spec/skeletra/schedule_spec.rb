@@ -27,6 +27,15 @@ describe Skeletra::Schedule do
       @schedule.add(job, every: 1)
       sleep 3
     end
+
+    it "should allow blocks to be processed on schedule" do
+      job = double("job")
+      i = 0
+      @schedule.add(:in => 1){ i += 1 }
+      expect(i).to eq(0)
+      sleep 2
+      expect(i).to eq(1)
+    end
   end
 
   after :each do
