@@ -2,6 +2,7 @@ source "https://rubygems.org"
 
 gem "sinatra"
 gem "sinatra-jsonp"
+gem "activesupport"
 gem "puma"
 
 gem "sinatra-asset-pipeline", require: 'sinatra/asset_pipeline'
