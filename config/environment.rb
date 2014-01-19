@@ -19,6 +19,8 @@ require "skeletra"
 
 Skeletra.config do |config|
   config.root = File.expand_path(File.join(File.dirname(__FILE__), ".."))
+  config.logger = Logger.new("log/environment.log")
+  config.logger.level = Logger::DEBUG
 end
 
 Skeletra::Server.configure do |c|

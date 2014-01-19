@@ -6,16 +6,21 @@ class Skeletra
     #
     #     attr_accessor :paths, :patterns, :secret, :shuffle
     #
-    attr_reader :root, :logger
+    attr_reader :root
+
+    attr_writer :logger
 
     def initialize
       # setup defaults
-      @logger = Logger.new(STDOUT)
     end
 
     def root=(path)
       @root = path
       @root.send(:extend, Root)
+    end
+
+    def logger
+      @logger ||= Logger.new(STDOUT)
     end
 
     # Embues the root directory string with a join method

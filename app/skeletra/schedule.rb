@@ -15,31 +15,55 @@ class Skeletra::Schedule
     elsif options[:at]
       options[:at]
     end
+    entry = Entry.new(at, args.first, options[:every])
     @semaphore.synchronize do
-      @schedules << Entry.new(at, args.first, options[:every])
+      @schedules << entry
       @schedules.sort_by!(&:at)
     end
-    @watcher.wakeup if @watcher.stop?
+    if @watcher.stop?
+      @watcher.wakeup
+    end
+  end
+
+  def clear
+    @semaphore.synchronize{ @schedules.clear }
   end
 
   def watch
     loop do
-      Thread.stop if @schedules.empty?
+      if @schedules.empty?
+        Thread.stop
+      end
       now = Time.now
-      jobs = []
-      next_job = nil
+      entries = []
       @semaphore.synchronize do
         while @schedules.first && @schedules.first[:at] <= now
-          jobs << @schedules.shift
+          entries << @schedules.shift
         end
-        next_job = @schedules.first
       end
-      jobs.each do |job|
-        job.work!
-        add(job, every: job.repeat) if job.repeat
+      entries.each do |entry|
+        log.info "Adding scheduled job to work queue"
+        entry.work!
+        if entry.repeat
+          add(entry.job, every: entry.repeat)
+        end
       end
-      sleep(next_job.at - now) if next_job
+      next_job = @schedules.first
+      if next_job
+        sleep(next_job.at - now)
+      end
     end
+  rescue Exception => e
+    log.error e.inspect
+    log.error e.backtrace
+  end
+
+  def count
+    @schedules.count
+  end
+
+  def log
+    Skeletra.logger
   end
 
   class Entry < Struct.new(:at, :job, :repeat)
