@@ -16,6 +16,7 @@ task :rename do
   name = ENV["NAME"]
   lcase = name.underscore
   files = `git ls-files`.split("\n")
+  rm_dirs = []
   files.each do |file|
     print "#{file} .. "
     contents = File.read(file)
@@ -24,10 +25,17 @@ task :rename do
     path = file.gsub(/skeletra/, lcase)
     unless path == file
       dir = File.dirname(path)
-      Dir.mkdir(dir) unless Dir.exist?(dir)
+      unless Dir.exist?(dir)
+        Dir.mkdir(dir)
+        rm_dirs << File.dirname(file)
+      end
       File.delete(file)
     end
     File.write(path, contents)
     print "done\n"
+  end
+  rm_dirs.each do |d|
+    Dir.rmdir d
+    puts "Removed #{d}"
   end
 end
