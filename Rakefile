@@ -21,7 +21,13 @@ task :rename do
     contents = File.read(file)
     contents = contents.gsub(/Skeletra/, name)
     contents = contents.gsub(/skeletra/, lcase)
-    File.write(file, contents)
+    path = file.gsub(/skeletra/, lcase)
+    unless path == file
+      dir = File.dirname(path)
+      Dir.mkdir(dir) unless Dir.exist?(dir)
+      File.delete(file)
+    end
+    File.write(path, contents)
     print "done\n"
   end
 end
