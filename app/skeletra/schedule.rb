@@ -73,7 +73,7 @@ class Skeletra::Schedule
     def initialize(job, options = {})
       self.job = job
       seconds = options[:in] || options[:every]
-      self.at = seconds ? Time.now + seconds : options[:at]
+      self.at = options.fetch(:at){ Time.now + seconds }
       self.repeat = options[:every]
     end
 
