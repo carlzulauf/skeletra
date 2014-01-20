@@ -57,7 +57,7 @@ class Skeletra
               log.error %|Worker ##{@id} error: #{e.message}\n#{e.backtrace.join("\n")}|
             end
           end
-          log.debug "Worker removing self from pool"
+          log.debug "Worker ##{@id} removing self from pool"
           work.pool.delete Thread.current
         end
       end
