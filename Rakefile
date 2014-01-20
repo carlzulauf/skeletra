@@ -11,3 +11,17 @@ desc "Pry console with env loaded"
 task :pry do |app|
   binding.pry
 end
+
+task :rename do
+  name = ENV["NAME"]
+  lcase = name.underscore
+  files = `git ls-files`.split("\n")
+  files.each do |file|
+    print "#{file} .. "
+    contents = File.read(file)
+    contents = contents.gsub(/Skeletra/, name)
+    contents = contents.gsub(/skeletra/, lcase)
+    File.write(file, contents)
+    print "done\n"
+  end
+end
