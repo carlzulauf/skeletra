@@ -67,16 +67,6 @@ class Skeletra
       end
     end
 
-    class BlockJob
-      def initialize(block)
-        @block = block
-      end
-
-      def perform
-        @block.call
-      end
-    end
-
     class TimeoutQueue
       include Timeout
 
@@ -97,6 +87,10 @@ class Skeletra
 
       def size
         @queue.size
+      end
+
+      def clear
+        @queue.clear
       end
     end
   end

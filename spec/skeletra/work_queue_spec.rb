@@ -42,4 +42,20 @@ describe Skeletra::WorkQueue do
       expect($shared).to eq(1)
     end
   end
+
+  describe "::TimeoutQueue" do
+    describe "#pop" do
+      it "should allow blocking until timeout reached" do
+        queue = Skeletra::WorkQueue::TimeoutQueue.new
+        $shared = 0
+        Thread.start do
+          $shared = queue.pop
+        end
+        expect($shared).to eq(0)
+        queue.push 1
+        sleep 1
+        expect($shared).to eq(1)
+      end
+    end
+  end
 end

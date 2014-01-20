@@ -1,15 +1,17 @@
 class Skeletra
   module WorkHelpers
-    def in_background(&block)
-      Skeletra.work.enqueue_block &block
+    def enqueue(job = nil, &block)
+      Skeletra.work.enqueue job, &block
     end
 
-    def enqueue(job = nil, &block)
-      if block_given?
-        in_background &block
-      else
-        Skeletra.work.enqueue job
-      end
+    alias_method :in_background, :enqueue
+
+    def schedule
+      Skeletra.schedule
+    end
+
+    def work
+      Skeletra.work
     end
   end
 end

@@ -28,6 +28,10 @@ class Skeletra::Schedule
     @semaphore.synchronize{ yield }
   end
 
+  def entries
+    @schedules
+  end
+
   def clear
     sync{ @schedules.clear }
   end
@@ -61,12 +65,6 @@ class Skeletra::Schedule
 
   def log
     Skeletra.logger
-  end
-
-  class Entry < Struct.new(:at, :job, :repeat)
-    def work!
-      Skeletra.work.enqueue job
-    end
   end
 
   class Entry

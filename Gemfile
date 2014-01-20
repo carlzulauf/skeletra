@@ -23,7 +23,10 @@ platform :rbx do
   gem "json"
   gem "rb-readline"
   gem "rubysl-base64"
+  gem "rubysl-benchmark"
+  gem "rubysl-bigdecimal"
   gem "rubysl-enumerator"
+  gem "rubysl-mutex_m"
   gem "rubysl-securerandom"
   gem "rubysl-singleton"
 end

@@ -8,6 +8,16 @@
   Pool size:
   = @pooled
 
+%h2
+  Schedule entries:
+  = schedule.entries.size
+
+- if schedule.entries.any?
+  %ul
+    - schedule.entries.each do |entry|
+      %li
+        %pre&= entry.inspect
+
 %p
   You have reached the default welcome page for skeletra, a sinatra skeleton
   app. You can find this page in views/index.haml.
@@ -20,5 +30,12 @@
 
 #js-test-output
 
-%p
-  %a{href: '/tick'} tick
+%ul
+  %li
+    %a{href: "/tick"} tick
+  %li
+    %a{href: "/ping"} ping
+  %li
+    %a{href: "/schedule/clear"} clear schedule
+  %li
+    %a{href: "/work/clear"} clear work
